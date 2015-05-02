@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'maven'
 
 android {
     compileSdkVersion 22
@@ -43,4 +44,39 @@ buildscript {
 }
 repositories {
     mavenCentral()
+}
+
+def deployTo = new File(rootDir, "repo")
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository url: "file://${deployTo.absolutePath}"
+            pom.version = '0.0.1'
+            pom.groupId = 'com.fatdaruma'
+            pom.artifactId = 'bindargs'
+            pom.project {
+                name 'BindArgs'
+                packaging 'aar'
+                description 'Android injection library for arguments of Fragment'
+                url 'https://github.com/jmatsu/BindArgs'
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'jmatsu'
+                        name 'Jumpei Matsuda'
+                        email 'j.matsuda.bb26th@gmail.com'
+                    }
+                }
+            }
+        }
+    }
 }
