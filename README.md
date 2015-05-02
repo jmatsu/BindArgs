@@ -10,7 +10,7 @@ You can
 # Usage
 
 ```gradle
-ext.bindargs_version = 0.0.1
+ext.bindargs_version="0.0.1"
 
 repositories {
     maven { url 'http://jmatsu.github.io/BindArgs/repo' }
