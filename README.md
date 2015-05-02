@@ -1,13 +1,24 @@
 # BindArgs
 Arguments of Fragment injection library for Android. This works with Kotlin.
 
+# Usage
+
+This is not available via task runner - like Maven, gradle.
+(Will be available)
+
+Download RAW BindArgs.kt into your project.
+
 # Samples
 
     public class SampleFragment : Fragment() {
-        private val msg : String by bindArgs("test") // => "test"
-        private val msgOpt : String? by bindOptionalArgs("test2") // => ""+null => "null"
-        private val msgCustom : String by bindArgs("test", {s -> s as String + "msgCustom"}) // => "test" -> "test"+"msgCustom" = "testmsgCustom"
-        private val msgOptDef : String? by bindOptionalArgs("test2", {s -> s ?: "msgOptDef"}) // => null -> "msgOptDef"
+        private val msg : String by bindArgs("test")
+            // => "test"
+        private val msgOpt : String? by bindOptionalArgs("test2")
+            // => null
+        private val msgCustom : String by bindArgs("test", {s -> s as String + "msgCustom"})
+            // => "testmsgCustom" ("test" -> "test"+"msgCustom")
+        private val msgOptDef : String? by bindOptionalArgs("test2", {s -> s ?: "msgOptDef"})
+            // => "msgOptDef" (null -> null ?: "msgOptDef")
 
         public static SampleFragment getSampleInstance() {
             SampleFragment sf = new SampleFragment();
