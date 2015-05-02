@@ -1,33 +1,91 @@
 # BindArgs
 Arguments of Fragment injection library for Android. This works with Kotlin.
 
+You can
+
++ use `val` instead of `var`
++ easily retrieve a value applied a function
++ make your codes be slim
+
 # Usage
 
-This is not available via task runner - like Maven, gradle.
-(Will be available)
+```gradle
+ext.bindargs_version = 0.0.1
 
-Download RAW BindArgs.kt into your project.
+repositories {
+    maven { url 'http://jmatsu.github.io/BindArgs/repo' }
+}
+
+dependencies {
+    compile "com.fatdaruma:bindargs:$bindargs_version"
+}
+```
+
+This depends on support library v4.
 
 # Samples
 
-    public class SampleFragment : Fragment() {
-        private val msg : String by bindArgs("test")
-            // => "test"
-        private val msgOpt : String? by bindOptionalArgs("test2")
-            // => null
-        private val msgCustom : String by bindArgs("test", {s -> s as String + "msgCustom"})
-            // => "testmsgCustom" ("test" -> "test"+"msgCustom")
-        private val msgOptDef : String? by bindOptionalArgs("test2", {s -> s ?: "msgOptDef"})
-            // => "msgOptDef" (null -> null ?: "msgOptDef")
+A simple case without BindArgs, following
 
-        public static SampleFragment getSampleInstance() {
-            SampleFragment sf = new SampleFragment();
-            Bundle bundle = new Bundle();
+```kotlin
+class SampleFragment : Fragment() {
+    private var msg : String = ""
+    private var msgOpt : String? = null
+    private var msgCustom : String = ""
+    private var msgOptDef : String? = null
+
+    companion object {
+        fun getSampleInstance() : SampleFragment {
+            val sf = SampleFragment()
+            Bundle bundle = Bundle()
             bundle.putString("test", "test")
-            sf.setArguments(bundle);
+            sf.setArguments(bundle)
             return sf;
         }
     }
+
+    // sample invocations.
+    override onCreateView(inflater : LayoutInflater, container : ViewGroup?, savedInstanceState : Bundle?) : View {
+        val view = inflater.inflate(LAYOUT_RESOURCE_ID, container, false)
+
+        msg = getArguments().getString("test")
+            // => "test"
+        msgOpt = getArguments().getString("test2")
+            // => null
+        msgCustom = getArguments().getString("test") + msgCustom
+            // => "test"+"msgCustom"
+        msgOptDef = getArguments().getString("test2", "msgOptDef")
+            // => "msgOptDef"
+
+        return view;
+    }
+}
+```
+
+Use with BindArgs case, following
+
+```kotlin
+class SampleFragment : Fragment() {
+    private val msg : String by bindArgs("test")
+        // => "test"
+    private val msgOpt : String? by bindOptionalArgs("test2")
+        // => null
+    private val msgCustom : String by bindArgs("test", {s -> s as String + "msgCustom"})
+        // => "testmsgCustom" ("test" -> "test"+"msgCustom")
+    private val msgOptDef : String? by bindOptionalArgs("test2", {s -> s ?: "msgOptDef"})
+        // => "msgOptDef" (null -> null ?: "msgOptDef")
+
+    companion object {
+        fun getSampleInstance() : SampleFragment {
+            val sf = SampleFragment()
+            Bundle bundle = Bundle()
+            bundle.putString("test", "test")
+            sf.setArguments(bundle)
+            return sf;
+        }
+    }
+}
+```
 
 # License
 
