@@ -17,54 +17,42 @@
 package com.fatdaruma.bindargs
 
 import android.app.Fragment
-import kotlin.properties.ReadOnlyProperty
-import kotlin.reflect.KProperty
 import android.support.v4.app.Fragment as SupportFragment
 
-fun <T : Any> Fragment.bindArgs(key: String, f: ((Any) -> T)? = null): ReadOnlyProperty<Any, T> = bindingDelegator(key, f)
-fun <T : Any> SupportFragment.bindArgs(key: String, f: ((Any) -> T)? = null): ReadOnlyProperty<Any, T> = bindingDelegator(key, f)
+fun <T : Any> Fragment.bindArgs(key: String, f: ((Any) -> T)? = null): Lazy<T> = lazy { getArgs(this, key, f) }
+fun <T : Any> SupportFragment.bindArgs(key: String, f: ((Any) -> T)? = null): Lazy<T> = lazy { getArgs(this, key, f) }
 
-fun <T> Fragment.bindOptionalArgs(key: String, f: ((Any?) -> T?)? = null): ReadOnlyProperty<Any, T> = bindingOptionalDelegator(key, f)
-fun <T> SupportFragment.bindOptionalArgs(key: String, f: ((Any?) -> T?)? = null): ReadOnlyProperty<Any, T> = bindingOptionalDelegator(key, f)
+fun <T : Any> Fragment.bindOptionalArgs(key: String, f: ((Any?) -> T?)? = null): Lazy<T?> = lazy { getOptionalArgs(this, key, f) }
+fun <T : Any> SupportFragment.bindOptionalArgs(key: String, f: ((Any?) -> T?)? = null): Lazy<T?> = lazy { getOptionalArgs(this, key, f) }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : Any> getArgs(thisRef: Any, key: String, f: ((Any) -> Any)?, property: KProperty<*>): T {
+private fun <T : Any> getArgs(thisRef: Any, key: String, f: ((Any) -> T)?): T {
     val value: Any = when (thisRef) {
         is Fragment -> {
-            thisRef.arguments.get(key) ?: throw IllegalArgumentException("Arguments must have key - $key - in ${property.name}")
+            thisRef.arguments.get(key) ?: throw IllegalArgumentException("Arguments must have key - $key")
         }
         is SupportFragment -> {
-            thisRef.arguments.get(key) ?: throw IllegalArgumentException("Arguments must have key - $key - in ${property.name}")
+            thisRef.arguments.get(key) ?: throw IllegalArgumentException("Arguments must have key - $key")
         }
         else -> throw IllegalStateException("Only allowed Fragment and SupportFragment")
     }
 
-    return (f?.invoke(value) ?: value) as T
+    f ?: return (value as T)
+    return f.invoke(value)
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T> getOptionalArgs(thisRef: Any, key: String, f: ((Any?) -> Any?)?, property: KProperty<*>): T {
+private fun <T : Any> getOptionalArgs(thisRef: Any, key: String, f: ((Any?) -> T?)?): T? {
     val value: Any? = when (thisRef) {
         is Fragment -> {
-            thisRef.arguments.get(key) ?: throw IllegalArgumentException("Arguments must have key - ${key} - in ${property.name}")
+            thisRef.arguments.get(key) ?: throw IllegalArgumentException("Arguments must have key - $key")
         }
         is SupportFragment -> {
-            thisRef.arguments.get(key) ?: throw IllegalArgumentException("Arguments must have key - ${key} - in ${property.name}")
+            thisRef.arguments.get(key) ?: throw IllegalArgumentException("Arguments must have key - $key")
         }
         else -> throw IllegalStateException("Only allowed Fragment and SupportFragment")
     }
 
-    return (f?.invoke(value) ?: value) as T
-}
-
-private class bindingDelegator<T : Any>(val key: String, val f: ((Any) -> Any)?) : ReadOnlyProperty<Any, T> {
-    override fun getValue(thisRef: Any, property: KProperty<*>): T {
-        return getArgs(thisRef, key, f, property)
-    }
-}
-
-private class bindingOptionalDelegator<T>(val key: String, val f: ((Any?) -> Any?)?) : ReadOnlyProperty<Any, T> {
-    override fun getValue(thisRef: Any, property: KProperty<*>): T {
-        return getOptionalArgs(thisRef, key, f, property)
-    }
+    f ?: return (value as T)
+    return f.invoke(value)
 }
