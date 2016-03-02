@@ -1,30 +1,41 @@
 package com.fatdaruma.bindargs_sample
 
-import android.support.v4.app.Fragment
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import com.fatdaruma.bindargs.bindArgs
-import com.fatdaruma.bindargs.bindOptionalArgs
-
+import kotlinx.android.synthetic.main.fragment_main.*
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment : Fragment() {
-    private val msg : String by bindArgs("test")
-    private val msgOpt : String? by bindOptionalArgs("test2")
-    private val msgCustom : String by bindArgs("test", {s -> s as String + "msgCustom"})
-    private val msgOptDef : String? by bindOptionalArgs("test2", {s -> s ?: "msgOptDef"})
+class MainActivityFragment : Fragment() {
+    companion object {
+        @JvmStatic
+        fun newInstance(): MainActivityFragment = MainActivityFragment().apply {
+            with (Bundle()) {
+                putString(keyMessage, "This is test message")
+
+                arguments = this
+            }
+        }
+
+        private val keyMessage: String = "keyMessage"
+    }
+
+    private val msg: String by bindArgs(keyMessage)
+    private val msgCustom: String by bindArgs(keyMessage) { s -> s as String + " with adding buf" }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = inflater.inflate(R.layout.fragment_main, container, false)
-        (view.findViewById(R.id.t) as TextView).setText(msg) // => "test"
-        (view.findViewById(R.id.t2) as TextView).setText(""+msgOpt) // => ""+null => "null"
-        (view.findViewById(R.id.t3) as TextView).setText(msgCustom) // => "test" -> "test"+"msgCustom" = "testmsgCustom"
-        (view.findViewById(R.id.t4) as TextView).setText(msgOptDef) // => null -> "msgOptDef"
-        return view
+        return inflater.inflate(R.layout.fragment_main, container, false)
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        t.text = msg            // => "This is test message"
+        t2.text = msgCustom     // => "This is test message" -> "This is test message" + " with adding buf" = "This is test message with adding buf"
     }
 }
