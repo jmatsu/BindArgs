@@ -1,1 +1,1 @@
-include ':app', ':bindargs'
+include ':sample', ':library'
