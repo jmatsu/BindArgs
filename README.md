@@ -1,23 +1,22 @@
 # BindArgs
 Arguments of Fragment injection library for Android. This works with Kotlin.
 
-You can
-
-+ use `val` instead of `var`
-+ easily retrieve a value applied a function
-+ make your codes be slim
++ Use `val` instead of `var`
++ Easy to obtain a value applied a function
 
 # Usage
 
 ```gradle
-ext.bindargs_version="0.0.1"
+ext {
+    bindargsVersion="1.0.0"
+}
 
 repositories {
-    maven { url 'http://jmatsu.github.io/BindArgs/repo' }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    compile "com.fatdaruma:bindargs:$bindargs_version"
+    compile "com.github.jmatsu:BindArgs:$bindargsVersion"
 }
 ```
 
@@ -29,17 +28,17 @@ A simple case without BindArgs, following
 
 ```kotlin
 class SampleFragment : Fragment() {
-    private var msg : String = ""
-    private var msgOpt : String? = null
-    private var msgCustom : String = ""
-    private var msgOptDef : String? = null
+    private lateinit var msg : String
+    private lateinit var msgCustom : String
+    private var primitive : Int = 0
 
     companion object {
         fun getSampleInstance() : SampleFragment {
             val sf = SampleFragment()
-            Bundle bundle = Bundle()
+            val bundle = Bundle()
             bundle.putString("test", "test")
-            sf.setArguments(bundle)
+            bundle.putInt("test2", 3)
+            sf.arguments = bundle
             return sf;
         }
     }
@@ -48,14 +47,11 @@ class SampleFragment : Fragment() {
     override onCreateView(inflater : LayoutInflater, container : ViewGroup?, savedInstanceState : Bundle?) : View {
         val view = inflater.inflate(LAYOUT_RESOURCE_ID, container, false)
 
-        msg = getArguments().getString("test")
+        msg = arguments.getString("test")
             // => "test"
-        msgOpt = getArguments().getString("test2")
-            // => null
-        msgCustom = getArguments().getString("test") + msgCustom
+        msgCustom = arguments.getString("test") + "msgCustom"
             // => "test"+"msgCustom"
-        msgOptDef = getArguments().getString("test2", "msgOptDef")
-            // => "msgOptDef"
+        primitive = arguments.getInteger("test2")
 
         return view;
     }
@@ -68,19 +64,17 @@ Use with BindArgs case, following
 class SampleFragment : Fragment() {
     private val msg : String by bindArgs("test")
         // => "test"
-    private val msgOpt : String? by bindOptionalArgs("test2")
-        // => null
     private val msgCustom : String by bindArgs("test", {s -> s as String + "msgCustom"})
         // => "testmsgCustom" ("test" -> "test"+"msgCustom")
-    private val msgOptDef : String? by bindOptionalArgs("test2", {s -> s ?: "msgOptDef"})
-        // => "msgOptDef" (null -> null ?: "msgOptDef")
+    private val primitive : Int by bindArgs("test2")
 
     companion object {
         fun getSampleInstance() : SampleFragment {
             val sf = SampleFragment()
-            Bundle bundle = Bundle()
+            val bundle = Bundle()
             bundle.putString("test", "test")
-            sf.setArguments(bundle)
+            bundle.putInteger("test2", 3)
+            sf.arguments = bundle
             return sf;
         }
     }
